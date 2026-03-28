@@ -1,7 +1,7 @@
 import pandas as pd
 
 print("Step 1 — Loading datasets...")
-from src.config import PRIMARY_CSV, SECONDARY_XLSX
+from src.config import PRIMARY_CSV, SECONDARY_XLSX, DATA_PROCESSED
 df_primary   = pd.read_csv(PRIMARY_CSV)
 df_secondary = pd.read_excel(SECONDARY_XLSX)
 print("Done loading")
@@ -18,18 +18,12 @@ df_primary = add_mdr_flags(df_primary)
 df_primary = encode_clinical(df_primary)
 print("Done features")
 
-from src.config import DATA_PROCESSED
-
 print("Step 4 — Saving cleaned data...")
-
-# create folder if it doesn't exist
 DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
-
-# save files
 df_primary.to_csv(DATA_PROCESSED / "primary_cleaned.csv", index=False)
 df_secondary.to_csv(DATA_PROCESSED / "secondary_cleaned.csv", index=False)
-
 print("Cleaned data saved to data/processed/")
+
 print("Step 5 — Visualising...")
 from src.visualise import plot_all
 plot_all(df_primary, df_secondary)

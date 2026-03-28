@@ -76,8 +76,13 @@ def clean_primary(df):
     for feat in ["Diabetes", "Hypertension", "Hospital_before"]:
         df[feat + "_enc"] = encode_binary(df[feat])
 
-    # Parse dates
-    df["Date_clean"] = pd.to_datetime(df["Collection_Date"], errors="coerce", dayfirst=True)
+    # Parse dates — format="mixed" handles inconsistent date formats without warning
+    df["Date_clean"] = pd.to_datetime(
+        df["Collection_Date"],
+        format="mixed",
+        dayfirst=True,
+        errors="coerce"
+    )
     df["Year"] = df["Date_clean"].dt.year
 
     return df

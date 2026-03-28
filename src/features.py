@@ -3,7 +3,7 @@ from src.config import AB_COLS
 
 
 def add_mdr_flags(df):
-    ab_enc = df[AB_COLS].applymap(
+    ab_enc = df[AB_COLS].map(
         lambda x: 1 if x == "R" else 0.5 if x == "I" else 0 if x == "S" else np.nan
     )
     df["resistance_count"] = ab_enc.apply(lambda row: (row == 1).sum(), axis=1)
@@ -12,6 +12,4 @@ def add_mdr_flags(df):
 
 
 def encode_clinical(df):
-    # Already done in clean_primary — this is a passthrough
-    # Add any extra feature engineering here in future
     return df
