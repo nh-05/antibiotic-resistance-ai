@@ -12,7 +12,7 @@ AB_COLS = [
     "Co-trimoxazole", "colistine"
 ]
 
-def recommend_antibiotics(bacteria_name, top_n=3):
+def recommend_antibiotics(bacteria_name, top_n=5):
 
     df_bac = df[df["Species_clean"] == bacteria_name]
 
