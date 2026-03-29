@@ -29,7 +29,11 @@ from src.visualise import plot_all
 plot_all(df_primary, df_secondary)
 print("Done visualising")
 
-print("Step 6 — Training models...")
+print("Step 6 — Basic Insights")
+from src.models import basic_insights  # import the function
+basic_insights(df_primary)
+
+print("Step 7 — Training models...")
 from src.models import run_all_models
 run_all_models(df_primary, df_secondary)
 print("Done models")
