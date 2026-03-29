@@ -587,7 +587,6 @@ st.markdown("""
     <div class="banner-title">🧬 Antibiotic Resistance AI Dashboard</div>
     <div class="banner-sub">AI-powered clinical decision support system · Real-time resistance profiling</div>
   </div>
-  <div class="banner-badge">Live Demo</div>
 </div>
 """, unsafe_allow_html=True)
 
