@@ -4,6 +4,7 @@ print("Step 1 — Loading datasets...")
 from src.config import PRIMARY_CSV, SECONDARY_XLSX, DATA_PROCESSED
 df_primary   = pd.read_csv(PRIMARY_CSV)
 df_secondary = pd.read_excel(SECONDARY_XLSX)
+
 print("Done loading")
 
 print("Step 2 — Cleaning...")
@@ -29,9 +30,33 @@ from src.visualise import plot_all
 plot_all(df_primary, df_secondary)
 print("Done visualising")
 
-print("Step 6 — Training models...")
+print("Step 6 — Basic Insights")
+from src.models import basic_insights  # import the function
+basic_insights(df_primary)
+print("Step 6.5 — Drug Comparison")
+
+from src.drug_comparison import print_comparison
+
+# Test with any bacteria from your dataset
+print_comparison(df_primary, "Escherichia coli")
+
+print("Done drug comparison")
+
+print("Step 7 — Training models...")
 from src.models import run_all_models
-run_all_models(df_primary, df_secondary)
+xgb1, X1_te, FEATURES_EXT = run_all_models(df_primary, df_secondary)
 print("Done models")
+
+from src.explainability import explain_prediction, print_explanation
+
+# Example: take 1 sample from test data
+sample = X1_te[0]
+
+# Feature names (same as model input)
+feature_names = FEATURES_EXT
+
+contributions = explain_prediction(xgb1, sample, feature_names)
+
+print_explanation(contributions)
 
 print("\nAll done! Check outputs/figures/ and outputs/models/")
