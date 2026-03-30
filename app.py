@@ -275,38 +275,44 @@ if run_clicked:
     with st.spinner("⏳  Analysing resistance profile…"):
         time.sleep(0.6)
 
-    # Build sample input vector for your model
-    # Model 1 (IPM) uses: AB_COLS (minus IPM) + res_count + res_ratio = len(AB_COLS)-1 + 2
-    expected_len = (xgb_model.n_features_in_ - 2) if xgb_model else 14
-    sample_input = [0] * expected_len  # sends 14 → prediction.py adds 2 → 16 ✓
-    # Call predict_resistance() from backend/prediction.py
+    # prediction.py adds res_count + res_ratio internally → pass only 14
+    expected_base_len = xgb_model.n_features_in_ - 2  # = 14
+
+    sample_input = []
+    for i in range(expected_base_len):
+        val = 0
+        if diabetes and i % 3 == 0:
+            val = 1
+        if prev_hosp and i % 2 == 0:
+            val = 1
+        if hypertension and i % 4 == 0:
+            val = 1
+        sample_input.append(val)
+
+    # ✅ Pass only 14 features — prediction.py handles the engineering internally
     result = predict_resistance(sample_input)
-    lbl    = result["prediction"]   # "Resistant" / "Susceptible" / "Intermediate"
+    lbl    = result["prediction"]
     conf   = result["confidence"]
 
-    # Avg resistance from real drug comparison data
     df_res_tmp = get_resistance_df(bacteria)
     mdr = round(df_res_tmp["Resistance %"].mean(), 1)
 
-    # SHAP values from src/explainability.py → explain_prediction()
+    # SHAP — must manually engineer here to match what the model actually received
     shap_vals = {}
     if xgb_model is not None:
         try:
-            features_for_shap = [c for c in AB_COLS if c != "IPM"] + ["res_count", "res_ratio"]
-        
-        # Use the FULL sample_input (already 14 base features)
-        # then add engineered features exactly like prediction.py does
-            base = np.array(sample_input, dtype=float)
+            base = np.array(sample_input, dtype=float)          # 14 features
             res_count = (base == 1).sum()
             res_ratio = res_count / len(base)
-            full_input = np.append(base, [res_count, res_ratio])  # → 16 features
-        
-            print("SHAP input shape:", full_input.shape)           # should be (16,)
-            print("Model expects:", xgb_model.n_features_in_)     # should be 16
-        
+            full_input = np.append(base, [res_count, res_ratio])  # 14 + 2 = 16 ✅
+
+            features_for_shap = [c for c in AB_COLS if c != "IPM"] + ["res_count", "res_ratio"]
+
+            print("SHAP input shape:", full_input.shape)         # should be (16,)
+            print("Model expects:   ", xgb_model.n_features_in_) # should be 16
+
             shap_vals = explain_prediction(xgb_model, full_input, features_for_shap)
-            print("SHAP success:", shap_vals)
-        
+
         except Exception as e:
             print("SHAP error:", e)
             st.warning(f"SHAP error: {e}")
