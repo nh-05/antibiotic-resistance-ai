@@ -130,6 +130,3 @@ Built  for **CodeCure Hackathon**
 
 ---
 
-## 📄 License
-
-MIT License — free to use and modify.
